@@ -6,11 +6,11 @@
   "repository": "https://github.com/duplojs/duplojs-to",
   "license": "ISC",
   "keywords": [],
-  "types": "./types/scripts/.ts",
+  "types": "./types/scripts/index.ts",
   "exports": {
     "default": {
-      "import": "./dist/.mjs",
-      "require": "./dist/.cjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
