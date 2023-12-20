@@ -3,10 +3,10 @@ import {parentPort} from "worker_threads";
 import DuploTo from "../../scripts";
 
 const duplo = Duplo({port: 1506, host: "localhost"});
-const duploTo = new DuploTo({host: "localhost:1506", https: false});
+const duploTo = new DuploTo<{added: boolean, test: "toto"}>({host: "localhost:1506", https: false});
 duploTo.setRequestInterceptor((request, params) => {
 	parentPort?.postMessage("requestInterceptor " + request.url);
-	if(params){
+	if(params.test){
 		parentPort?.postMessage("requestInterceptor params " + JSON.stringify(params));
 		params.added = true;
 	}
@@ -14,7 +14,7 @@ duploTo.setRequestInterceptor((request, params) => {
 });
 duploTo.setResponseInterceptor((response, request, params) => {
 	parentPort?.postMessage("responseInterceptor " + request.url);
-	if(params){
+	if(params.test){
 		parentPort?.postMessage("responseInterceptor params " + JSON.stringify(params));
 	}
 	return response;
