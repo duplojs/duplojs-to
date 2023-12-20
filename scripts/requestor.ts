@@ -7,7 +7,7 @@ export default class Requestor<
 	constructor(
 		path: string, 
 		requestParameters: RequestParameters, 
-		interceptorParams?: interceptorParameter
+		interceptorParams: interceptorParameter
 	){
 		this.result = this.setResult(path, requestParameters, interceptorParams);
 	}
@@ -85,7 +85,7 @@ export default class Requestor<
 	private async setResult(
 		path: string, 
 		requestParameters: RequestParameters, 
-		interceptorParams?: interceptorParameter
+		interceptorParams: interceptorParameter
 	){
 		const baseUrl = requestParameters.disabledPrefix ? this.construc.baseUrlWithoutPrefix : this.construc.baseUrl;
 		if(!path.startsWith("/"))path = `/${path}`;

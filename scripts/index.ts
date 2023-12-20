@@ -2,7 +2,7 @@ import Requestor from "./requestor";
 import {DuplojsToParameters, RequestCallbackErrorHook, RequestCallbackHook, RequestInterceptorFunction, RequestParameters, ResponseInterceptorFunction} from "./types";
 
 export default class DuplojsTo<
-    interceptorParameter extends Record<string, any> = Record<string, any>
+    interceptorParameter extends {} = {}
 >{
 	constructor(
 		{
@@ -127,7 +127,7 @@ export default class DuplojsTo<
 		return new this.requestor<interceptorParameter, data>(
 			path, 
 			parameters, 
-			interceptorParams
+			interceptorParams || {} as interceptorParameter
 		);
 	}
 

@@ -21,7 +21,7 @@ export type RequestInterceptorFunction<
     interceptorParameter extends Record<string, any>
 > = (
     request: RequestObject, 
-    params?: interceptorParameter
+    params: Partial<interceptorParameter>
 ) => RequestObject;
 
 export type ResponseInterceptorFunction<
@@ -30,7 +30,7 @@ export type ResponseInterceptorFunction<
 > = (
     response: ResponseObject<data>, 
     request: RequestObject, 
-    params?: interceptorParameter
+    params: Partial<interceptorParameter>
 ) => ResponseObject<data>;
 
 export type RequestCallbackHook = (requestObject: RequestObject, responseObject: ResponseObject<unknown>) => void
