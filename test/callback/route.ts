@@ -1,8 +1,10 @@
 import Duplo, {zod} from "@duplojs/duplojs";
 import {parentPort} from "worker_threads";
 import DuploTo from "../../scripts";
+import duploTypeGenerator from "../../scripts/plugin";
 
-const duplo = Duplo({port: 1506, host: "localhost"});
+const duplo = Duplo({port: 1506, host: "localhost", environment: "DEV"});
+duplo.use(duploTypeGenerator);
 const duploTo = new DuploTo({host: "localhost:1506", https: false, prefix: "test/"});
 
 duplo.declareRoute("POST", "/request/*")
@@ -42,6 +44,11 @@ duplo.declareRoute("POST", "/request/*")
 		parentPort?.postMessage("error " + (error instanceof Error));
 	})
 	.result;
+
+	if(!result.success){
+		res.code(500).info("error").send();
+		return;
+	}
 
 	res.code(result.response?.status || 500).info(result.info || "").send(result.data);
 });
