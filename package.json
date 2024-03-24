@@ -13,11 +13,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-	"./plugin": {
-		"types": "./plugin.d.ts",
-		"import": "./dist/plugin.mjs",
-		"require": "./dist/plugin.cjs"
-	  }
+    "./plugin": {
+      "types": "./plugin.d.ts",
+      "import": "./dist/plugin.mjs",
+      "require": "./dist/plugin.cjs"
+    }
   },
   "files": [
     "dist",
@@ -28,17 +28,18 @@
   },
   "scripts": {
     "build": "rollup --config && npx tsc -p tsconfig.build.json",
-	"test:e2e": "node --require sucrase/register test",
-	"test:types": "node --require sucrase/register test/plugin/route.ts --generate-types && tsc"
+    "test:e2e": "node --require sucrase/register test",
+    "test:types": "node --require sucrase/register test/plugin/route.ts --generate-types && tsc"
   },
   "devDependencies": {
     "@duplojs/worker-testing": "^0.1.5",
+    "@rollup/plugin-json": "^6.1.0",
     "@types/node": "^18.15.11",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-	"@rollup/plugin-json": "^6.1.0",
     "eslint": "^8.45.0",
     "rollup": "^3.26.2",
+    "rollup-plugin-esbuild": "^6.1.1",
     "sucrase": "^3.34.0",
     "typescript": "^5.0.2"
   },
