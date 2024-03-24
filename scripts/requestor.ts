@@ -1,4 +1,4 @@
-import {RequestCallbackError, RequestCallbackErrorHook, RequestCallbackHook, RequestInterceptorFunction, RequestParameters, ResponseInterceptorFunction, ResponseObject} from "./types";
+import {RequestCallbackError, RequestCallbackErrorHook, RequestCallbackHook, RequestInterceptorFunction, RequestParameters, ResponseInterceptorFunction, ResponseObject, ResponseObjectSuccess} from "./types";
 
 export default class Requestor<
     interceptorParameter extends Record<string, any> = Record<string, any>,
@@ -39,7 +39,10 @@ export default class Requestor<
 	}
 	async sd<d = data>(){
 		let result = await this.result;
-		if(result.response?.ok === true) return result.data as d;
+		if(
+			result.success && 
+			result.response?.ok === true
+		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
 	e<d = data>(cb: (data: d) => void){
@@ -48,7 +51,10 @@ export default class Requestor<
 	}
 	async ed<d = data>(){
 		let result = await this.result;
-		if(result.response?.ok === false) return result.data as d;
+		if(
+			result.success && 
+			result.response?.ok === false
+		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
 	info<d = data>(info: string, cb: (data: d) => void){
@@ -57,7 +63,10 @@ export default class Requestor<
 	}
 	async id<d = data>(info: string){
 		let result = await this.result;
-		if(result.info === info) return result.data as d;
+		if(
+			result.success && 
+			result.info === info
+		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
 	code<d = data>(code: number, cb: (data: d) => void){ 
@@ -66,10 +75,13 @@ export default class Requestor<
 	}
 	async cd<d = data>(code: number){
 		let result = await this.result;
-		if(result.response?.status === code) return result.data as d;
+		if(
+			result.success && 
+			result.response?.status === code
+		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
-	then<d = data>(cb: (response: ResponseObject<d>) => void){
+	then<d = data>(cb: (response: ResponseObjectSuccess<d>) => void){
 		this._then = cb;
 		return this;
 	}
@@ -102,20 +114,20 @@ export default class Requestor<
 		);
 
 		try {
-			if(responseObject.error){
+			if(responseObject.success === false){
 				this.construc.hookError.forEach(sub => sub(requestObject, responseObject.error as Error));
 				this._catch(responseObject.error);
 			}
-			else if(responseObject.response){
+			else {
 				this._then(responseObject);
     
-				if(this.construc.hookCode[responseObject.response.status]){
-					this.construc.hookCode[responseObject.response.status].forEach(
+				if(this.construc.hookCode[responseObject.code]){
+					this.construc.hookCode[responseObject.code].forEach(
 						sub => sub(requestObject, responseObject)
 					);
 				}
-				if(this._code[responseObject.response.status]){
-					this._code[responseObject.response.status](responseObject.data);
+				if(this._code[responseObject.code]){
+					this._code[responseObject.code](responseObject.data);
 				}
     
 				const info = responseObject.info;
@@ -137,7 +149,7 @@ export default class Requestor<
 		return responseObject as ResponseObject<data>;
 	}
 
-	private async fetch(url: string, requestParameters: RequestParameters){
+	private async fetch(url: string, requestParameters: RequestParameters): Promise<ResponseObject<unknown>>{
 		if(requestParameters.disabledPrefix) delete requestParameters.disabledPrefix;
 		if(requestParameters.params){
 			let urls = url.split("?");
@@ -165,16 +177,23 @@ export default class Requestor<
 			const response = await fetch(url, requestParameters as any);
 			const responseContentType = response.headers.get("content-type") || "";
 			const info = response.headers.get(this.construc.keyInfo) || undefined;
+			const code = response.status;
 			let data: any = undefined;
 
 			if(responseContentType.indexOf("application/json") !== -1) data = await response.json();
 			else if(responseContentType.indexOf("text/") !== -1) data = await response.text();
 			else data = await response.blob();
 
-			return {response, data, info};
+			return {
+				success: true,
+				response, 
+				data, 
+				info, 
+				code
+			};
 		}
 		catch (error){
-			return {error: error as Error};
+			return {success: false, error: error as Error};
 		}
 	}
 }

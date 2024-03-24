@@ -1,8 +1,9 @@
 import Requestor from "./requestor";
 import {DuplojsToParameters, RequestCallbackErrorHook, RequestCallbackHook, RequestInterceptorFunction, RequestParameters, ResponseInterceptorFunction} from "./types";
 
-export default class DuplojsTo<
-    interceptorParameter extends {} = {}
+export default class DuploTo<
+    interceptorParameter extends {} = {},
+	enrichedDuplojsTo extends {} = {}
 >{
 	constructor(
 		{
@@ -19,6 +20,9 @@ export default class DuplojsTo<
 		this.requestor = class extends Requestor<any, any>{};
 		this.setBaseUrl();
 		this.requestor.keyInfo = keyInfo || this.requestor.keyInfo;
+
+		//@ts-ignore
+		this.enriched = this;
 	}
 
 	private prefix?: string;
@@ -27,6 +31,7 @@ export default class DuplojsTo<
 
 	private requestor: typeof Requestor;
 	private defaultHeaders: Record<string, string | number | string[] | undefined> = {};
+	public enriched: enrichedDuplojsTo;
 
 	private setBaseUrl(){
 		const host = this.host || window.location.host;
@@ -106,7 +111,11 @@ export default class DuplojsTo<
 		return this;
 	}
 
-	request<data = unknown>(path: string, parameters: RequestParameters = {}, interceptorParams?: interceptorParameter){
+	request<data = unknown, >(
+		path: string, 
+		parameters: RequestParameters = {}, 
+		interceptorParams?: interceptorParameter
+	){
 		if(!parameters.headers) parameters.headers = {};
 		if(parameters.body && !parameters.headers["content-type"]){
 			if(typeof parameters.body === "string"){
@@ -131,24 +140,41 @@ export default class DuplojsTo<
 		);
 	}
 
-	get<data = unknown>(path: string, parameters: RequestParameters = {}, interceptorParams?: interceptorParameter){
+	get<data = unknown>(
+		path: string,
+		parameters: RequestParameters = {}, 
+		interceptorParams?: interceptorParameter
+	){
+		parameters;
 		parameters.method = "GET";
 		return this.request<data>(path, parameters, interceptorParams);
 	}
-	head<data = unknown>(path: string, parameters: RequestParameters = {}, interceptorParams?: interceptorParameter){
+	head<data = unknown>(
+		path: string, 
+		parameters: RequestParameters = {}, 
+		interceptorParams?: interceptorParameter
+	){
 		parameters.method = "HEAD";
 		return this.request<data>(path, parameters, interceptorParams);
 	}
-	options<data = unknown>(path: string, parameters: RequestParameters = {}, interceptorParams?: interceptorParameter){
+	options<data = unknown>(
+		path: string, 
+		parameters: RequestParameters = {}, 
+		interceptorParams?: interceptorParameter
+	){
 		parameters.method = "OPTIONS";
 		return this.request<data>(path, parameters, interceptorParams);
 	}
-	delete<data = unknown>(path: string, parameters: RequestParameters = {}, interceptorParams?: interceptorParameter){
+	delete<data = unknown>(
+		path: string,
+		parameters: RequestParameters = {}, 
+		interceptorParams?: interceptorParameter
+	){
 		parameters.method = "DELETE";
 		return this.request<data>(path, parameters, interceptorParams);
 	}
 	post<data = unknown>(
-		path: string, 
+		path: string,
 		body?: any,
 		parameters: RequestParameters = {}, 
 		interceptorParams?: interceptorParameter
@@ -168,7 +194,7 @@ export default class DuplojsTo<
 		return this.request<data>(path, parameters, interceptorParams);
 	}
 	patch<data = unknown>(
-		path: string, 
+		path: string,
 		body?: any,
 		parameters: RequestParameters = {}, 
 		interceptorParams?: interceptorParameter
