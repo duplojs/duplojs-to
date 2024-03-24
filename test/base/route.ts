@@ -1,9 +1,11 @@
 import Duplo, {zod} from "@duplojs/duplojs";
 import {parentPort} from "worker_threads";
 import DuploTo from "../../scripts";
+import duploTypeGenerator from "../../scripts/plugin";
 
-const duplo = Duplo({port: 1506, host: "localhost"});
-const duploTo = new DuploTo({host: "localhost:1506", https: false, prefix: "/test/"});
+const duplo = Duplo({port: 1506, host: "localhost", environment: "DEV"});
+duplo.use(duploTypeGenerator);
+const duploTo = new DuploTo<{}, DuploTo>({host: "localhost:1506", https: false, prefix: "/test/"});
 
 duplo.declareRoute("POST", "/request/*")
 .hook("onError", (req, res, err) => console.log(err))
@@ -30,7 +32,7 @@ duplo.declareRoute("POST", "/request/*")
 	const request = pickup("request");
 	const path = decodeURI(request.url.split("/").slice(2).join("/"));
 	
-	const result = await duploTo.request(
+	const result = await duploTo.enriched.request(
 		path,
 		{
 			method: pickup("method"),
@@ -42,6 +44,11 @@ duplo.declareRoute("POST", "/request/*")
 		}
 	)
 	.result;
+
+	if(!result.success){
+		res.code(500).info("error").send();
+		return;
+	}
 
 	res.code(result.response?.status || 500).info(result.info || "error").send(result.data);
 });

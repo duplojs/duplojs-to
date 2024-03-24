@@ -1,21 +1,37 @@
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
+
 export type RequestParameters = {
+	method?: HttpMethod;
 	params?: Record<string, string | number>;
 	query?: Record<string, string | string[] | number | undefined>;
 	disabledPrefix?: boolean;
-	headers?: Record<string, string | undefined>
-} & Omit<RequestInit, "headers">;
+	headers?: Record<string, string | undefined>;
+} & Omit<RequestInit, "headers" | "method">;
 
 export type RequestObject = {
     url: string
     parameters: RequestParameters
 }
 
-export type ResponseObject<data> = {
-    response?: Response;
-	data?: data;
-	error?: Error;
-	info?: string;
+export interface ResponseObjectInterface<_data> {}
+
+export type ResponseObjectError = {
+	success: false,
+	error: Error,
 }
+
+export type ResponseObjectSuccess<_data> = {
+	success: true,
+	response: Response,
+	code: number,
+	data?: _data,
+	info?: string,
+}
+
+export type ResponseObject<_data> = (
+	| ResponseObjectSuccess<_data>
+	| ResponseObjectError
+) & ResponseObjectInterface<_data>
 
 export type RequestInterceptorFunction<
     interceptorParameter extends Record<string, any>
