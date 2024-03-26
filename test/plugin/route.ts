@@ -5,7 +5,7 @@ import {IHaveSentThis} from "@duplojs/what-was-sent";
 
 const duplo = Duplo({port: 1506, host: "localhost", environment: "DEV"});
 
-duplo.use(duploTypeGenerator, {outputFile: "./test/plugin/EnrichedDuploTo.d.ts"});
+duplo.use(duploTypeGenerator, {outputFile: "./test/plugin/EnrichedDuploTo.ts"});
 
 const mustBeAdmin = duplo.declareAbstractRoute("MustBeAdmin")
 .extract({
@@ -68,6 +68,13 @@ duplo.declareRoute("PATCH", "/user/{id}")
 		res.code(200).info("user.patch").send();
 	},
 	new IHaveSentThis(200, "user.patch")
+);
+
+duplo.declareRoute("GET", "/posts")
+.handler(
+	({}, res) => {
+		res.code(200).info("posts.get").send();
+	},
 );
 
 duplo.launch(() => parentPort?.postMessage("ready"));
