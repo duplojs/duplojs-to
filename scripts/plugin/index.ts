@@ -195,7 +195,7 @@ export default function duploTypeGenerator(
 						receiveBodyTypeName || "unknown",
 						parametersTypeName || "undefined",
 						!parametersTypeName || !Object.values(requestParameters).find(v => !v.isOptional()),
-						reponsesTypesNames.join("\n\t\t| ")
+						reponsesTypesNames.join("\n\t\t| ") || "ResponseDefinition"
 					)
 				);
 			}
@@ -206,7 +206,7 @@ export default function duploTypeGenerator(
 						pathType,
 						parametersTypeName || "undefined",
 						!parametersTypeName || !Object.values(requestParameters).find(v => !v.isOptional()),
-						reponsesTypesNames.join("\n\t\t| ")
+						reponsesTypesNames.join("\n\t\t| ") || "ResponseDefinition"
 					)
 				);
 			}

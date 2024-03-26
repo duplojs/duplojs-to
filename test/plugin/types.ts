@@ -122,4 +122,8 @@ duploTo.enriched.patch(
 	{params: {id: 1}}
 );
 
+duploTo.enriched.get("/posts").code(3000, (data: string) => {
+	type test = AssertType<string, typeof data>;
+});
+
 
