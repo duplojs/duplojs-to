@@ -1,4 +1,6 @@
 import {DuploConfig, DuploInstance, ExtractObject, methods} from "@duplojs/duplojs";
+import {IHaveSentThis} from "@duplojs/what-was-sent";
+import {duploFindManyDesc} from "@duplojs/editor-tools";
 import * as zod from "zod";
 import {zodToTs, printNode, createTypeAlias} from "zod-to-ts";
 import {findDescriptor} from "./findDescriptor";
@@ -6,15 +8,16 @@ import {baseInterfaceTemplate, givesMethodTemplate, takesMethodTemplate} from ".
 import packageJson from "../../package.json";
 import {writeFileSync} from "fs";
 
-function zodToTypeInString(zodSchema: zod.ZodType, identifier: string){
-	const {node} = zodToTs(zodSchema, identifier);
-	const typeAlias = createTypeAlias(node, identifier);
-	return printNode(typeAlias, {omitTrailingSemicolon: true});
-}
-
 declare module "@duplojs/duplojs" {
 	interface Plugins {
 		"@duplojs/to": {version: string}
+	}
+}
+
+declare module "@duplojs/what-was-sent" {
+	interface IHaveSentThis {
+		ignore(): this;
+		_ignore?: true;
 	}
 }
 
@@ -36,6 +39,19 @@ zod.ZodType.prototype.ignore = function(){
 	this._ignore = true;
 	return this;
 };
+
+IHaveSentThis.prototype.ignore = function(){
+	this._ignore = true;
+	return this;
+};
+
+export class IgnoreByTypeGenerator{}
+
+function zodToTypeInString(zodSchema: zod.ZodType, identifier: string){
+	const {node} = zodToTs(zodSchema, identifier);
+	const typeAlias = createTypeAlias(node, identifier);
+	return printNode(typeAlias, {omitTrailingSemicolon: true});
+}
 
 export type ResponseSchema = zod.ZodObject<{
 	code: zod.ZodLiteral<number>,
@@ -69,6 +85,10 @@ export default function duploTypeGenerator(
 	const routesTypesCollection: RoutesTypes[] = []; 
 
 	instance.addHook("onDeclareRoute", (route) => {
+		if(duploFindManyDesc(route, (v) => v instanceof IgnoreByTypeGenerator)){
+			return;
+		}
+		
 		const {
 			iHaveSentThisCollection,
 			extractCollection
