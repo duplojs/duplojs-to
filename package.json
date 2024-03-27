@@ -22,7 +22,7 @@
   "files": [
     "dist",
     "types",
-	"plugin.d.ts"
+    "plugin.d.ts"
   ],
   "publishConfig": {
     "access": "public"
@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@duplojs/duplojs": ">=1.2.14 <2.0.0",
+    "@duplojs/editor-tools": "^1.1.4",
     "@duplojs/what-was-sent": ">=1.2.1 <2.0.0",
     "zod": "^3.22.4",
     "zod-to-ts": "^1.2.0"

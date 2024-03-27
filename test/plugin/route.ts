@@ -1,6 +1,6 @@
 import Duplo, {zod} from "@duplojs/duplojs";
 import {parentPort} from "worker_threads";
-import duploTypeGenerator from "../../scripts/plugin";
+import duploTypeGenerator, {IgnoreByTypeGenerator} from "../../scripts/plugin";
 import {IHaveSentThis} from "@duplojs/what-was-sent";
 
 const duplo = Duplo({port: 1506, host: "localhost", environment: "DEV"});
@@ -67,13 +67,20 @@ duplo.declareRoute("PATCH", "/user/{id}")
 	({}, res) => {
 		res.code(200).info("user.patch").send();
 	},
-	new IHaveSentThis(200, "user.patch")
+	new IHaveSentThis(200, "user.patch").ignore()
 );
 
 duplo.declareRoute("GET", "/posts")
 .handler(
 	({}, res) => {
 		res.code(200).info("posts.get").send();
+	},
+);
+
+duplo.declareRoute("OPTIONS", "/posts", new IgnoreByTypeGenerator())
+.handler(
+	({}, res) => {
+		res.code(200).send();
 	},
 );
 

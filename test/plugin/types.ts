@@ -1,4 +1,3 @@
-import {date} from "zod";
 import DuploTo from "../../scripts";
 import {EnrichedDuplojsTo} from "./EnrichedDuploTo";
 
@@ -120,10 +119,12 @@ duploTo.enriched.patch(
 	"/user/{id}", 
 	undefined, 
 	{params: {id: 1}}
-);
+).then(payload => {
+	type test = AssertType<typeof payload["code"], number>;
+});
 
 duploTo.enriched.get("/posts").code(3000, (data: string) => {
 	type test = AssertType<string, typeof data>;
 });
 
-
+type test = AssertType<"get" | "post" | "patch", keyof EnrichedDuplojsTo>;
