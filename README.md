@@ -24,6 +24,7 @@ https|`boolean` \| `undefined`|Si `true`, Cela utilisera le protocole https. Si 
 host|`string` \| `undefined`| définis l'host des requests. Exemple : `"www.youtube.com"`, Et si la propriété n'est pas défini, la valeur par défaut, sera l'host de la page actuelle.
 keyInfo|`string` \| `undefined`|La clé pour trouver l'info dans les headers. Valeur pars défaut `"info"`.
 
+## instance DuploTo
 #### Propriété de l'instance
 propriétés|valeur|definition
 ---|---|---
@@ -45,3 +46,97 @@ removeHookCode|`removeHookCode(code: number, cb: AnyFunction): this;`|Permet de 
 addHookError|`addHookError(cb: (error: Error) => void): this;`|Permet d'ajouter une fonction qui ce lencera quand une request sera en echec.
 removeHookError|`removeHookError(cb: AnyFunction): this;`|Permet de retiré une fonction qui a étais utilisé comme hook.
 enriched|`this;`|Cette propriéter permet d'accerdé l'instance typé du client.
+
+#### Exemple configuration
+```ts
+interface InterceptorParams{
+	enabledLoader?: boolean
+}
+
+const duploTo = new DuploTo<InterceptorParams>();
+
+duploTo.setRequestInterceptor((request, params) => {
+	// params === InterceptorParams
+	return request;
+});
+
+duploTo.setResponseInterceptor((response, request, params) => {
+	// params === InterceptorParams
+	return response;
+});
+
+duploTo.setDefaultHeaders({
+	get token(){
+		return "my super tokent"
+	}
+});
+
+duploTo.addHookInfo(
+	"user.connect",
+	() => {
+		// action
+	}
+)
+```
+
+## instance Requestor
+Pour obtenir une instance de `Requestor`, il suffit 
+```ts
+
+```
+#### Propriété de l'instance
+propriétés|valeur|definition
+---|---|---
+s|`s(cb: (data: unknown) => void): this;`|
+sd|`sd(): Promise<unknown>;`|
+e|`e(cb: (data: unknown) => void): this;`|
+ed|`ed(): Promise<unknown>;`|
+info|`info(info: string, cb: (data: unknown) => void): this;`|
+id|`id(info: string): Promise<unknown>;`|
+code|`code(code: number, cb: (data: unknown) => void): this;`|
+cd|`cd(code: number): Promise<unknown>;`|
+then|`then(cb: (response: ResponseObjectSuccess) => void): this;`|
+catch|`catch(cb: (error: Error) => void): this;`|
+finally|`finally(cb: (response: ResponseObject) => void): this`|
+
+#### Exemple request
+```ts
+await duploTo.request(
+	"/user/{id}",
+	{
+		method: "GET",
+		params: {id: 2},
+	}
+)
+.result;
+
+await duploTo.get(
+	"/users",
+	{
+		query: {limit: 10}
+	}
+)
+.result;
+
+await duploTo.patch(
+	"/user/{id}/firstname",
+	"Mathieu",
+	{
+		params: {id: 63}
+	}
+)
+.result;
+
+await duploTo.put(
+	"/user/{id}",
+	{
+		firstname: "Mathieu",
+		lastname: "Campani",
+	},
+	{
+		params: {id: 30},
+		headers: {token: "mon super token"}
+	}
+)
+.result;
+```

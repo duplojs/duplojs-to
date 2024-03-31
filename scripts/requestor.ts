@@ -85,11 +85,11 @@ export default class Requestor<
 		this._then = cb;
 		return this;
 	}
-	catch(cb: Requestor["_catch"]){
+	catch(cb: RequestCallbackError){
 		this._catch = cb;
 		return this;
 	}
-	finally(cb: (response: ResponseObject<data>) => void){
+	finally<d = data>(cb: (response: ResponseObject<d>) => void){
 		this._finally = cb;
 		return this;
 	}
