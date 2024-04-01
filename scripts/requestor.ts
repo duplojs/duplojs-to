@@ -180,8 +180,8 @@ export default class Requestor<
 			const code = response.status;
 			let data: any = undefined;
 
-			if(responseContentType.indexOf("application/json") !== -1) data = await response.json();
-			else if(responseContentType.indexOf("text/") !== -1) data = await response.text();
+			if(responseContentType.includes("application/json")) data = await response.json();
+			else if(responseContentType.includes("text/")) data = await response.text();
 			else data = await response.blob();
 
 			return {

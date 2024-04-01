@@ -13,7 +13,60 @@ npm i @duplojs/to
 import DuploTo from "@duplojs/to";
 
 // client http
-const duploTo = new DuploTo({/* config */});
+const duploTo = new DuploTo();
+```
+
+## Premier request
+```ts
+const requestor = duploTo.request(
+	"/user/{id}",
+	{
+		method: "GET",
+		params: {id: 2},
+	}
+);
+const result = await requestor.result // resultat de la request
+
+const result = await duploTo.patch(
+	"/user/{id}/firstname",
+	"Mathieu"
+	{params: {id: 50}}
+)
+.result;
+
+const data = await duploTo.get(
+	"/users",
+	{query: {limit: 20}}
+)
+.sd();
+
+await duploTo.get(
+	"/user/{id}",
+	{params: {id: 789}}
+)
+.info("user.get", (data) => {
+	// some action when response holds info 'user.get'
+})
+.s((data) => {
+	// some action when response is successfull
+})
+.code(200, (data) => {
+	// some action when response has status 200
+})
+.e((data) => {
+	// some action when response is wrong
+})
+.result;
+```
+
+
+## Configuration
+```ts
+const duploTo = new DuploTo({
+	prefix: "api", 
+	host: "duplo.campani.fr",
+	https: true,
+});
 ```
 
 #### Config
@@ -24,7 +77,6 @@ https|`boolean` \| `undefined`|Si `true`, Cela utilisera le protocole https. Si 
 host|`string` \| `undefined`| définis l'host des requests. Exemple : `"www.youtube.com"`, Et si la propriété n'est pas défini, la valeur par défaut, sera l'host de la page actuelle.
 keyInfo|`string` \| `undefined`|La clé pour trouver l'info dans les headers. Valeur pars défaut `"info"`.
 
-## instance DuploTo
 #### Propriété de l'instance
 propriétés|valeur|definition
 ---|---|---
@@ -80,54 +132,65 @@ duploTo.addHookInfo(
 ```
 
 ## instance Requestor
-Pour obtenir une instance de `Requestor`, il suffit 
-```ts
+l'objet `Requestor` est une interface qui permet d'associer des hooks local a une request. Pour obtenir une instance de l'objet il suffit d'utilisé les methods `get`|`head`|`options`|`delete`|`post`|`patch`|`put`|`request` d'une instance `DuploTo`.
 
+```ts
+const requestor = await duploTo.get(
+	"/users",
+	{query: {limit: 20}}
+)
 ```
+
 #### Propriété de l'instance
 propriétés|valeur|definition
 ---|---|---
-s|`s(cb: (data: unknown) => void): this;`|
-sd|`sd(): Promise<unknown>;`|
-e|`e(cb: (data: unknown) => void): this;`|
-ed|`ed(): Promise<unknown>;`|
-info|`info(info: string, cb: (data: unknown) => void): this;`|
-id|`id(info: string): Promise<unknown>;`|
-code|`code(code: number, cb: (data: unknown) => void): this;`|
-cd|`cd(code: number): Promise<unknown>;`|
-then|`then(cb: (response: ResponseObjectSuccess) => void): this;`|
-catch|`catch(cb: (error: Error) => void): this;`|
-finally|`finally(cb: (response: ResponseObject) => void): this`|
+s|`s(cb: (data: unknown) => void): this;`|Assigne une fonction qui ce lencera en cas de réussite (code [200 ; 299]).
+sd|`sd(): Promise<unknown>;`|Renvois un promise qui sera résolut en cas de réussite (code [200 ; 299]). Le resulta du promise sera le body de la response.
+e|`e(cb: (data: unknown) => void): this;`|Assigne une fonction qui ce lencera en cas d'echec (code [400 ; 599]).
+ed|`ed(): Promise<unknown>;`|Renvois un promise qui sera résolut en cas d'echec (code [400 ; 599]). Le resulta du promise sera le body de la response.
+info|`info(info: string, cb: (data: unknown) => void): this;`|Assigne une fonction qui ce lencera si la réponse porte l'info passé en premier argument.
+id|`id(info: string): Promise<unknown>;`|Renvois un promise qui sera résolut si la réponse porte l'info passé en premier argument. Le resulta du promise sera le body de la response.
+code|`code(code: number, cb: (data: unknown) => void): this;`|Assigne une fonction qui ce lencera si la réponse a le status passé en premier argument.
+cd|`cd(code: number): Promise<unknown>;`|Renvois un promise qui sera résolut si la réponse a le status passé en premier argument. Le resulta du promise sera le body de la response.
+then|`then(cb: (response: ResponseObjectSuccess) => void): this;`|Assigne une fonction qui ce lencera si le serveur renvois une réponse.
+catch|`catch(cb: (error: Error) => void): this;`|Assigne une fonction qui ce lencera en cas d'erreur.
+finally|`finally(cb: (response: ResponseObject) => void): this;`|Assigne une fonction qui ce lencera quoi qu'il arrive.
+result|`result: Promise<ResponseObject>;`|Promise de la réponse.
 
 #### Exemple request
 ```ts
-await duploTo.request(
+duploTo.request(
 	"/user/{id}",
 	{
 		method: "GET",
 		params: {id: 2},
 	}
 )
+.s((data) => {
+	// some action when response is successfull
+})
 .result;
 
 await duploTo.get(
 	"/users",
-	{
-		query: {limit: 10}
-	}
+	{query: {limit: 10}}
 )
+.info("users.get", () => {
+	// some action when response holds info 'users.get'
+})
 .result;
 
 await duploTo.patch(
 	"/user/{id}/firstname",
 	"Mathieu",
-	{
-		params: {id: 63}
-	}
+	{params: {id: 63}}
 )
+.code(200, () => {
+	// some action when response has status 200
+})
 .result;
 
-await duploTo.put(
+const data = await duploTo.put(
 	"/user/{id}",
 	{
 		firstname: "Mathieu",
@@ -138,5 +201,5 @@ await duploTo.put(
 		headers: {token: "mon super token"}
 	}
 )
-.result;
+.sd();
 ```
