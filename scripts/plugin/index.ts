@@ -4,7 +4,7 @@ import {duploFindManyDesc} from "@duplojs/editor-tools";
 import * as zod from "zod";
 import {zodToTs, printNode, createTypeAlias} from "zod-to-ts";
 import {findDescriptor} from "./findDescriptor";
-import {baseDefTemplate, baseInterfaceTemplate, defRouteTemplate, givesMethodTemplate, takesMethodTemplate} from "./template";
+import {baseDefTemplate, baseInterfaceTemplate, defRouteTemplate, givesMethodTemplate, takesMethodTemplate, topComments} from "./template";
 import packageJson from "../../package.json";
 import {writeFileSync} from "fs";
 
@@ -249,7 +249,7 @@ export default function duploTypeGenerator(
 
 		writeFileSync(
 			outputFile, 
-			`${mergedTypes}\n${buildedInterface}\n${buildedDef}`, 
+			`${topComments}\n${mergedTypes}\n${buildedInterface}\n${buildedDef}`,
 			"utf-8"
 		);
 
