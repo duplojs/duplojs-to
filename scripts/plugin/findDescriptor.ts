@@ -1,5 +1,6 @@
-import {AbstractRoute, CheckerStep, CutStep, Duplose, ExtractObject, MergeAbstractRoute, Process, Route} from "@duplojs/duplojs";
+import {AbstractRoute, Duplose, ExtractObject, MergeAbstractRoute, Process, ProcessStep, Route} from "@duplojs/duplojs";
 import {IHaveSentThis} from "@duplojs/what-was-sent";
+import {duploFindManyDesc} from "@duplojs/editor-tools";
 
 export function findDescriptor(
 	duplose: Route | Process | AbstractRoute | MergeAbstractRoute,
@@ -22,19 +23,13 @@ export function findDescriptor(
 		}
 
 		extractCollection.push(duplose.extracted);
+	
+		iHaveSentThisCollection.push(
+			...(duploFindManyDesc(duplose, (v) => v instanceof IHaveSentThis && !!v._ignore === false) || [])
+		);
 		
 		duplose.steps.forEach((step, index) => {
-			if(
-				step instanceof CutStep || 
-				step instanceof CheckerStep
-			){
-				const desc = duplose.descs.find((v: any) => v.index === index);
-				if(!desc) return;
-
-				iHaveSentThisCollection.push(
-					...desc.descStep.filter((v) => v instanceof IHaveSentThis)
-				);
-
+			if(!(step instanceof ProcessStep)){
 				return;
 			}
 
@@ -53,13 +48,6 @@ export function findDescriptor(
 				iHaveSentThisCollection,
 				extractCollection
 			)
-		);
-	}
-
-	const desc = duplose.descs.find((v) => v.type === "handler");
-	if(desc){
-		iHaveSentThisCollection.push(
-			...desc.descStep.filter((v) => v instanceof IHaveSentThis)
 		);
 	}
 

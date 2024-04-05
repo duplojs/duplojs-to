@@ -1,4 +1,4 @@
 node_modules
 dist
 types
-test/plugin/EnrichedDuploTo.d.ts
+test/plugin/EnrichedDuploTo.ts

@@ -1,6 +1,5 @@
-import {date} from "zod";
 import DuploTo from "../../scripts";
-import {EnrichedDuplojsTo} from "./EnrichedDuploTo";
+import {EnrichedDuplojsTo, GetDef, GetResponseByInfo, GetResponseByCode} from "./EnrichedDuploTo";
 
 type AssertType<T, B extends T> = null
 
@@ -120,6 +119,27 @@ duploTo.enriched.patch(
 	"/user/{id}", 
 	undefined, 
 	{params: {id: 1}}
-);
+).then(payload => {
+	type test = AssertType<typeof payload["code"], number>;
+});
 
+duploTo.enriched.get("/posts").code(3000, (data: string) => {
+	type test = AssertType<string, typeof data>;
+});
 
+type test = AssertType<"get" | "post" | "patch", keyof EnrichedDuplojsTo>
+& AssertType<{path: "/user/{id}", method: "POST"}, GetDef<"POST", "/user/{id}">>
+& AssertType<
+	{info: "user.get"},
+	GetResponseByInfo<
+		GetDef<"GET", "/user/{id}">,
+		"user.get"
+	>
+>
+& AssertType<
+	{code: 200},
+	GetResponseByCode<
+		GetDef<"GET", "/user/{id}">,
+		200
+	>
+>;
