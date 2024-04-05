@@ -252,7 +252,9 @@ export default function duploTypeGenerator(
 			`${topComments}\n${mergedTypes}\n${buildedInterface}\n${buildedDef}`,
 			"utf-8"
 		);
-
-		process.exit(0);
+		
+		if(process.argv.includes("--only-generate")){
+			process.exit(0);
+		}
 	});
 }

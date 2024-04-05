@@ -30,7 +30,7 @@
   "scripts": {
     "build": "rollup --config && npx tsc -p tsconfig.build.json",
     "test:e2e": "node --require sucrase/register test",
-    "test:types": "node --require sucrase/register test/plugin/route.ts --generate-types && tsc"
+    "test:types": "node --require sucrase/register test/plugin/route.ts --generate-types --only-generate && tsc"
   },
   "devDependencies": {
     "@duplojs/worker-testing": "^0.1.5",
