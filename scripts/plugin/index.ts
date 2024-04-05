@@ -4,7 +4,7 @@ import {duploFindManyDesc} from "@duplojs/editor-tools";
 import * as zod from "zod";
 import {zodToTs, printNode, createTypeAlias} from "zod-to-ts";
 import {findDescriptor} from "./findDescriptor";
-import {baseInterfaceTemplate, givesMethodTemplate, takesMethodTemplate} from "./template";
+import {baseDefTemplate, baseInterfaceTemplate, defRouteTemplate, givesMethodTemplate, takesMethodTemplate} from "./template";
 import packageJson from "../../package.json";
 import {writeFileSync} from "fs";
 
@@ -159,6 +159,7 @@ export default function duploTypeGenerator(
 	instance.addHook("beforeBuildRouter", () => {
 		const allMethodsDefinitions: string[] = [];
 		const allTypeDefinitions: string[] = [];
+		const allDefDefinitions: string[] = [];
 
 		routesTypesCollection.forEach(({
 			responseSchemaCollection,
@@ -230,11 +231,25 @@ export default function duploTypeGenerator(
 					)
 				);
 			}
+
+			allDefDefinitions.push(
+				defRouteTemplate(
+					method,
+					pathType, 
+					receiveBodyTypeName || "unknown",
+					parametersTypeName || "undefined",
+					reponsesTypesNames.join("\n\t\t| ") || "ResponseDefinition",
+				)
+			);
 		});
+
+		const mergedTypes = allTypeDefinitions.map(v => `export ${v}`).join("\n\n");
+		const buildedInterface = baseInterfaceTemplate(allMethodsDefinitions.join(""));
+		const buildedDef = baseDefTemplate(allDefDefinitions.join(" | "));
 
 		writeFileSync(
 			outputFile, 
-			`${allTypeDefinitions.map(v => `export ${v}`).join("\n\n")}\n${baseInterfaceTemplate(allMethodsDefinitions.join(""))}`, 
+			`${mergedTypes}\n${buildedInterface}\n${buildedDef}`, 
 			"utf-8"
 		);
 
