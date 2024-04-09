@@ -106,6 +106,10 @@ export default function duploTypeGenerator(
 		const requestParameters = extractCollection.reduce<ExtractObject>(
 			(pv, cv) => {
 				Object.entries(cv).forEach(([key, value]) => {
+					if(!pv[key]){
+						return;
+					}
+					
 					if(pv[key] instanceof zod.ZodType){
 						return;
 					}

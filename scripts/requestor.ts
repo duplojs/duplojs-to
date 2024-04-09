@@ -85,11 +85,11 @@ export default class Requestor<
 		this._then = cb;
 		return this;
 	}
-	catch(cb: Requestor["_catch"]){
+	catch(cb: RequestCallbackError){
 		this._catch = cb;
 		return this;
 	}
-	finally(cb: (response: ResponseObject<data>) => void){
+	finally<d = data>(cb: (response: ResponseObject<d>) => void){
 		this._finally = cb;
 		return this;
 	}
@@ -180,8 +180,8 @@ export default class Requestor<
 			const code = response.status;
 			let data: any = undefined;
 
-			if(responseContentType.indexOf("application/json") !== -1) data = await response.json();
-			else if(responseContentType.indexOf("text/") !== -1) data = await response.text();
+			if(responseContentType.includes("application/json")) data = await response.json();
+			else if(responseContentType.includes("text/")) data = await response.text();
 			else data = await response.blob();
 
 			return {
