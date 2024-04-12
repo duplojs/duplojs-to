@@ -253,7 +253,7 @@ export default function duploTypeGenerator(
 
 		writeFileSync(
 			outputFile, 
-			`${topComments}\n${mergedTypes}\n${buildedInterface}\n${buildedDef}`,
+			`${topComments}\n${mergedTypes}\n${buildedDef}\n${buildedInterface}`,
 			"utf-8"
 		);
 		

@@ -75,11 +75,16 @@ export declare class EnrichedRequestor<
 	>;
 }
 
-export interface EnrichedDuplojsTo<
+export interface EnrichedDuploTo<
 	interceptorParameter extends {} = {},
 >{
 	${block}
 }
+
+/** @deprecated */
+export type EnrichedDuplojsTo<
+	interceptorParameter extends {} = {},
+> = EnrichedDuploTo<interceptorParameter>;
 `;
 
 export const takesMethodTemplate = (
