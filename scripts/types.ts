@@ -49,7 +49,7 @@ export type ResponseInterceptorFunction<
     params: Partial<interceptorParameter>
 ) => ResponseObject<data>;
 
-export type RequestCallbackHook = (requestObject: RequestObject, responseObject: ResponseObject<unknown>) => void
+export type RequestCallbackHook<_data = unknown> = (requestObject: RequestObject, responseObject: ResponseObject<_data>) => void
 export type RequestCallbackError = (error: Error) => void
 export type RequestCallbackErrorHook = (requestObject: RequestObject, error: Error) => void
 

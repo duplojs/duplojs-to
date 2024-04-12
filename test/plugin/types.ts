@@ -1,5 +1,5 @@
 import DuploTo from "../../scripts";
-import {EnrichedDuplojsTo, GetDef, GetResponseByInfo, GetResponseByCode} from "./EnrichedDuploTo";
+import {EnrichedDuploTo, GetDef, GetResponseByInfo, GetResponseByCode} from "./EnrichedDuploTo";
 
 type AssertType<T, B extends T> = null
 
@@ -7,7 +7,7 @@ type interceptorParameter = {test: boolean};
 
 const duploTo = new DuploTo<
 	interceptorParameter, 
-	EnrichedDuplojsTo<interceptorParameter>
+	EnrichedDuploTo<interceptorParameter>
 >({host: "localhost:1506", https: false});
 
 duploTo.enriched.get(
@@ -127,7 +127,7 @@ duploTo.enriched.get("/posts").code(3000, (data: string) => {
 	type test = AssertType<string, typeof data>;
 });
 
-type test = AssertType<"get" | "post" | "patch", keyof EnrichedDuplojsTo>
+type test = AssertType<"get" | "post" | "patch", keyof EnrichedDuploTo>
 & AssertType<{path: "/user/{id}", method: "POST"}, GetDef<"POST", "/user/{id}">>
 & AssertType<
 	{info: "user.get"},

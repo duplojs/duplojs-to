@@ -3,6 +3,15 @@
 
 DuploJSTo est un client HTTP qui facilite la communication avec une API [DuploJS](https://github.com/duplojs/duplojs). Le package intégre aussi un plugin Duplo qui permet de générer une déclaration des enrtés et des sortie de votre back-end.
 
+## Sommaire
+- [Instalation](#instalation)
+- [Initialisation](#premier-pas)
+- [Premier request](#premier-request)
+- [Configuration](#configuration)
+- [Instance Requestor](#instance-requestor)
+- [Générer de la déclaration depuis Duplojs](#générer-de-la-déclaration-depuis-duplojs)
+- [Enrichire la déclaration](#enrichire-la-déclaration)
+
 ## Instalation
 ```
 npm i @duplojs/to
@@ -19,42 +28,42 @@ const duploTo = new DuploTo();
 ## Premier request
 ```ts
 const requestor = duploTo.request(
-	"/user/{id}",
-	{
-		method: "GET",
-		params: {id: 2},
-	}
+    "/user/{id}",
+    {
+        method: "GET",
+        params: {id: 2},
+    }
 );
 const result = await requestor.result // resultat de la request
 
 const result = await duploTo.patch(
-	"/user/{id}/firstname",
-	"Mathieu"
-	{params: {id: 50}}
+    "/user/{id}/firstname",
+    "Mathieu"
+    {params: {id: 50}}
 )
 .result;
 
 const data = await duploTo.get(
-	"/users",
-	{query: {limit: 20}}
+    "/users",
+    {query: {limit: 20}}
 )
 .sd();
 
 await duploTo.get(
-	"/user/{id}",
-	{params: {id: 789}}
+    "/user/{id}",
+    {params: {id: 789}}
 )
 .info("user.get", (data) => {
-	// some action when response holds info 'user.get'
+    // some action when response holds info 'user.get'
 })
 .s((data) => {
-	// some action when response is successfull
+    // some action when response is successfull
 })
 .code(200, (data) => {
-	// some action when response has status 200
+    // some action when response has status 200
 })
 .e((data) => {
-	// some action when response is wrong
+    // some action when response is wrong
 })
 .result;
 ```
@@ -63,9 +72,9 @@ await duploTo.get(
 ## Configuration
 ```ts
 const duploTo = new DuploTo({
-	prefix: "api", 
-	host: "duplo.campani.fr",
-	https: true,
+    prefix: "api", 
+    host: "duplo.campani.fr",
+    https: true,
 });
 ```
 
@@ -102,42 +111,42 @@ enriched|`this;`|Cette propriéter permet d'accerdé l'instance typé du client.
 #### Exemple configuration
 ```ts
 interface InterceptorParams{
-	enabledLoader?: boolean
+    enabledLoader?: boolean
 }
 
 const duploTo = new DuploTo<InterceptorParams>();
 
 duploTo.setRequestInterceptor((request, params) => {
-	// params === InterceptorParams
-	return request;
+    // params === InterceptorParams
+    return request;
 });
 
 duploTo.setResponseInterceptor((response, request, params) => {
-	// params === InterceptorParams
-	return response;
+    // params === InterceptorParams
+    return response;
 });
 
 duploTo.setDefaultHeaders({
-	get token(){
-		return "my super tokent"
-	}
+    get token(){
+        return "my super tokent"
+    }
 });
 
 duploTo.addHookInfo(
-	"user.connect",
-	() => {
-		// action
-	}
+    "user.connect",
+    () => {
+        // action
+    }
 )
 ```
 
-## instance Requestor
+## Instance Requestor
 l'objet `Requestor` est une interface qui permet d'associer des hooks local a une request. Pour obtenir une instance de l'objet il suffit d'utilisé les methods `get`|`head`|`options`|`delete`|`post`|`patch`|`put`|`request` d'une instance `DuploTo`.
 
 ```ts
 const requestor = await duploTo.get(
-	"/users",
-	{query: {limit: 20}}
+    "/users",
+    {query: {limit: 20}}
 )
 ```
 
@@ -160,46 +169,126 @@ result|`result: Promise<ResponseObject>;`|Promise de la réponse.
 #### Exemple request
 ```ts
 duploTo.request(
-	"/user/{id}",
-	{
-		method: "GET",
-		params: {id: 2},
-	}
+    "/user/{id}",
+    {
+        method: "GET",
+        params: {id: 2},
+    }
 )
 .s((data) => {
-	// some action when response is successfull
+    // some action when response is successfull
 })
 .result;
 
 await duploTo.get(
-	"/users",
-	{query: {limit: 10}}
+    "/users",
+    {query: {limit: 10}}
 )
 .info("users.get", () => {
-	// some action when response holds info 'users.get'
+    // some action when response holds info 'users.get'
 })
 .result;
 
 await duploTo.patch(
-	"/user/{id}/firstname",
-	"Mathieu",
-	{params: {id: 63}}
+    "/user/{id}/firstname",
+    "Mathieu",
+    {params: {id: 63}}
 )
 .code(200, () => {
-	// some action when response has status 200
+    // some action when response has status 200
 })
 .result;
 
 const data = await duploTo.put(
-	"/user/{id}",
-	{
-		firstname: "Mathieu",
-		lastname: "Campani",
-	},
-	{
-		params: {id: 30},
-		headers: {token: "mon super token"}
-	}
+    "/user/{id}",
+    {
+        firstname: "Mathieu",
+        lastname: "Campani",
+    },
+    {
+        params: {id: 30},
+        headers: {token: "mon super token"}
+    }
 )
 .sd();
+```
+
+## Générer de la déclaration depuis Duplojs
+Si vous avez une API [Duplojs](https://github.com/duplojs/duplojs), vous pouvez générer un fichier de déclaration enfain d'enrichire le typage du client `DuploTo`.
+
+Pour cela, il fit de utiliser le plugin qui fournit du DuploTo de la manier suivante :
+```ts
+import Duplo from "@duplojs/duplojs";
+import duploTypeGenerator from "@duplojs/to/plugin";
+
+const duplo = Duplo({
+    port: 1506, 
+    host: "localhost", 
+    environment: "DEV"
+});
+
+/* ... */
+
+duplo.use(duploTypeGenerator, {
+    outputFile: "EnrichedDuploTo.ts"
+});
+```
+
+Puis lancer votre API Duplojs en ajoutent l'argument `--generate-types`. (vous pouvez aussi utilisé `--only-generate` pour stopper le serveur avec la génération de la déclaration).
+
+Maintenant importer ce fichier du coter front de votre projet et implémenter le dans `DuploTo`.
+
+```ts
+import DuploTo from "@duplojs/to";
+import type {EnrichedDuploTo} from "/path/to/EnrichedDuploTo";
+
+interface InterceptorParams {
+    // ...
+}
+
+export const duploTo = new DuploTo<
+    InterceptorParams, 
+    EnrichedDuploTo<InterceptorParams>
+>({
+    // ...
+});
+
+duploTo.enriched //This property has all declaration.
+```
+
+## Enrichire la déclaration
+La fonction `extract` dans duplo permet de manier explicite, d'indiquer qu'elle champ son présent sur une route. C'est grasse a cela que le plugin de DuploTo arrive a déterminer le type des entrés d'une route.
+
+```ts
+//ramdom route in api
+
+duplo
+.declareRoute("GET", "/user/{id}")
+.extract({
+    params: {
+        id: zod.string(),
+    },
+    headers: {
+        token: zod.string().ignore(), // field is ignore by type generator
+    }
+})
+.handler(({}, res) => {
+    res.code(200).info("user.get").send({firstname: "mathieu"});
+});
+```
+
+Parcontre si vous shouétais typés les sortie de duplo pour enrichir la déclaration de DuploTo, il va vous faloir utilisé un autre plugins de duplo qui ce nome [what-was-sent](https://github.com/duplojs/duplojs-what-was-sent). Ce plugin serret a créer des contrat explicite des sortie du duplo.
+
+```ts
+duplo
+.declareRoute("GET", "/user/{id}")
+.extract({
+    // ...
+})
+.handler(
+    ({}, res) => {
+        res.code(200).info("user.get").send({firstname: "mathieu"});
+    },
+    new IHaveSentThis(200, "user.get", zod.object({firstname: zod.string()}))
+);
 ```
