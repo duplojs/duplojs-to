@@ -65,11 +65,18 @@ export default class DuploTo<
 		return this;
 	}
 
-	addHookInfo(info: string, cb: RequestCallbackHook){
-		if(!this.requestor.hookInfo[info]){
-			this.requestor.hookInfo[info] = [];
+	addHookInfo(info: string | string[], cb: RequestCallbackHook){
+		if(typeof info === "string"){
+			info = [info];
 		}
-		this.requestor.hookInfo[info].push(cb);
+
+		info.forEach(value => {
+			if(!this.requestor.hookInfo[value]){
+				this.requestor.hookInfo[value] = [];
+			}
+			this.requestor.hookInfo[value].push(cb);
+		});
+		
 		return this;
 	}
 	removeHookInfo(info: string, cb: RequestCallbackHook){
@@ -82,11 +89,18 @@ export default class DuploTo<
 		return this;
 	}
 
-	addHookCode(code: number, cb: RequestCallbackHook){
-		if(!this.requestor.hookCode[code]){
-			this.requestor.hookCode[code] = [];
+	addHookCode(code: number | number[], cb: RequestCallbackHook){
+		if(typeof code === "number"){
+			code = [code];
 		}
-		this.requestor.hookCode[code].push(cb);
+
+		code.forEach(value => {
+			if(!this.requestor.hookCode[value]){
+				this.requestor.hookCode[value] = [];
+			}
+			this.requestor.hookCode[value].push(cb);
+		});
+
 		return this;
 	}
 	removeHookCode(code: number, cb: RequestCallbackHook){

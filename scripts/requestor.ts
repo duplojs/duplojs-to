@@ -27,8 +27,8 @@ export default class Requestor<
 	result: Promise<ResponseObject<data>>;
 	private _s: (data: any) => void = () => {};
 	private _e: (data: any) => void = () => {};
-	private _info: Record<string, (data: any) => void> = {};
-	private _code: Record<number, (data: any) => void> = {};
+	private _info: Record<string, (data: any, info: string) => void> = {};
+	private _code: Record<number, (data: any, code: number) => void> = {};
 	private _then: (data: any) => void = () => {};
 	private _catch: RequestCallbackError = (error) => {throw error;};
 	private _finally: (...args: any[]) => void = () => {};
@@ -57,27 +57,45 @@ export default class Requestor<
 		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
-	info<d = data>(info: string, cb: (data: d) => void){
-		this._info[info] = cb;
+	info<d = data>(info: string | string[], cb: (data: d, info: string) => void){
+		if(typeof info === "string"){
+			info = [info];
+		}
+		info.forEach((value) => {
+			this._info[value] = cb;
+		});
 		return this;
 	}
-	async id<d = data>(info: string){
+	async id<d = data>(info: string | string[]){
+		if(typeof info === "string"){
+			info = [info];
+		}
 		let result = await this.result;
 		if(
 			result.success && 
-			result.info === info
+			result.info &&
+			info.includes(result.info)
 		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
-	code<d = data>(code: number, cb: (data: d) => void){ 
-		this._code[code] = cb;
+	code<d = data>(code: number | number[], cb: (data: d, code: number) => void){ 
+		if(typeof code === "number"){
+			code = [code];
+		}
+		code.forEach((value) => {
+			this._code[value] = cb;
+		});
 		return this;
 	}
-	async cd<d = data>(code: number){
+	async cd<d = data>(code: number | number[]){
+		if(typeof code === "number"){
+			code = [code];
+		}
 		let result = await this.result;
 		if(
 			result.success && 
-			result.response?.status === code
+			result.code &&
+			code.includes(result.code)
 		) return result.data as d;
 		else throw new Error("Wrong Response");
 	}
@@ -127,7 +145,7 @@ export default class Requestor<
 					);
 				}
 				if(this._code[responseObject.code]){
-					this._code[responseObject.code](responseObject.data);
+					this._code[responseObject.code](responseObject.data, responseObject.code);
 				}
     
 				const info = responseObject.info;
@@ -135,7 +153,7 @@ export default class Requestor<
 					if(this.construc.hookInfo[info]){
 						this.construc.hookInfo[info].forEach(sub => sub(requestObject, responseObject));
 					}
-					if(this._info[info]) this._info[info](responseObject.data);
+					if(this._info[info]) this._info[info](responseObject.data, info);
 				}
 				
 				if(responseObject.response.ok) this._s(responseObject.data);
