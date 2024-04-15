@@ -56,7 +56,7 @@ function zodToTypeInString(zodSchema: zod.ZodType, identifier: string){
 export type ResponseSchema = zod.ZodObject<{
 	code: zod.ZodLiteral<number>,
 	ok: zod.ZodLiteral<boolean>,
-	info: zod.ZodEnum<any> | zod.ZodUndefined,
+	info: zod.ZodLiteral<string> | zod.ZodUndefined,
 	body?: zod.ZodType,
 }>
 
@@ -94,14 +94,31 @@ export default function duploTypeGenerator(
 			extractCollection
 		} = findDescriptor(route);
 
-		const responseSchemaCollection = iHaveSentThisCollection.map<ResponseSchema>(v => 
-			zod.object({
-				code: zod.literal(v.code),
-				ok: zod.literal(v.code < 300 ? true : false),
-				info: v.info ? zod.enum(v.info as any) : zod.undefined(),
-				body: v.zod,
-			})
-		);
+		const responseSchemaCollection: ResponseSchema[] = [];
+		iHaveSentThisCollection.forEach(v => {
+			if(v.info){
+				v.info.forEach(info => {
+					responseSchemaCollection.push(
+						zod.object({
+							code: zod.literal(v.code),
+							ok: zod.literal(v.code < 300 ? true : false),
+							info: zod.literal(info),
+							body: v.zod,
+						})
+					);
+				});
+			}
+			else {
+				responseSchemaCollection.push(
+					zod.object({
+						code: zod.literal(v.code),
+						ok: zod.literal(v.code < 300 ? true : false),
+						info: zod.undefined(),
+						body: v.zod,
+					})
+				);
+			}
+		});
 
 		const requestParameters = extractCollection.reduce<ExtractObject>(
 			(pv, cv) => {
@@ -186,8 +203,6 @@ export default function duploTypeGenerator(
 				allTypeDefinitions.push(
 					zodToTypeInString(zod.object(requestParameters as any), parametersTypeName)
 				);
-
-				parametersTypeName = `${parametersTypeName} & BaseRequestParameters`;
 			}
 
 			const reponsesTypesNames: string[] = [];
@@ -218,7 +233,7 @@ export default function duploTypeGenerator(
 						method.toLowerCase(),
 						pathType,
 						receiveBodyTypeName || "unknown",
-						parametersTypeName || "undefined",
+						parametersTypeName || "UndefinedRequestParameters",
 						!parametersTypeName || !Object.values(requestParameters).find(v => !v.isOptional()),
 						reponsesTypesNames.join("\n\t\t| ") || "ResponseDefinition"
 					)
@@ -229,7 +244,7 @@ export default function duploTypeGenerator(
 					takesMethodTemplate(
 						method.toLowerCase(),
 						pathType,
-						parametersTypeName || "undefined",
+						parametersTypeName || "UndefinedRequestParameters",
 						!parametersTypeName || !Object.values(requestParameters).find(v => !v.isOptional()),
 						reponsesTypesNames.join("\n\t\t| ") || "ResponseDefinition"
 					)

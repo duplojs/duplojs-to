@@ -1,3 +1,4 @@
+import {date} from "zod";
 import DuploTo from "../../scripts";
 import {EnrichedDuploTo, GetDef, GetResponseByInfo, GetResponseByCode} from "./EnrichedDuploTo";
 
@@ -26,11 +27,27 @@ duploTo.enriched.get(
 .info("users.notfound", data => {
 	type test = AssertType<undefined, typeof data>;
 })
+.info(["user.get", "users.notfound"], (data, info) => {
+	if(info === "user.get"){
+		type test = AssertType<{firstname: string}, typeof data>;
+	}
+	else {
+		type test = AssertType<undefined, typeof data>;
+	}
+})
 .code(200, data => {
 	type test = AssertType<{firstname: string}, typeof data>;
 })
 .code(404, data => {
 	type test = AssertType<undefined, typeof data>;
+})
+.code([404, 200], (data, code) => {
+	if(code === 200){
+		type test = AssertType<{firstname: string}, typeof data>;
+	}
+	else {
+		type test = AssertType<undefined, typeof data>;
+	}
 })
 .then(data => {
 	type test = AssertType<{
@@ -87,8 +104,16 @@ testData.id("user.get").then(data => {
 	type test = AssertType<{firstname: string}, typeof data>;
 });
 
+testData.id(["user.get", "users.notfound"]).then(data => {
+	type test = AssertType<{firstname: string} | undefined, typeof data>;
+});
+
 testData.cd(404).then(data => {
 	type test = AssertType<undefined, typeof data>;
+});
+
+testData.cd([404, 200]).then(data => {
+	type test = AssertType<{firstname: string} | undefined, typeof data>;
 });
 
 duploTo.enriched.get(
@@ -101,13 +126,19 @@ duploTo.enriched.get(
 	"/users"
 );
 
+duploTo.enriched.get(
+	"/users",
+	{headers: []}
+);
+
 duploTo.enriched.post(
 	"/user/{id}",
 	{firstname: "mathieu"},
 	{params: {id: 1}}
 )
-.info("user.post", data => {
+.info(["user.post", "org.notfound"], (data, info) => {
 	type test = AssertType<undefined, typeof data>;
+	type test1 = AssertType<"org.notfound" | "user.post", typeof info>;
 });
 
 duploTo.enriched.patch(
