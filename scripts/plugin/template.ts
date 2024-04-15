@@ -8,8 +8,24 @@ export const topComments = `
 
 export const baseInterfaceTemplate = (block: string) => /* js */`
 export type BaseRequestParameters = {
-	disabledPrefix?: boolean;
+	disabledPrefix?: boolean,
 } & Omit<RequestInit, "headers" | "method">;
+
+export type UndefinedRequestParameters = {
+	headers?: string | string[];
+}
+
+export type DefToArgumentsWithInfo<
+	responseDefinition extends ResponseDefinition
+> = responseDefinition extends ResponseDefinition 
+	? [data: responseDefinition["body"], info: responseDefinition["info"]]
+	: never
+
+export type DefToArgumentsWithCode<
+	responseDefinition extends ResponseDefinition
+> = responseDefinition extends ResponseDefinition 
+	? [data: responseDefinition["body"], code: responseDefinition["code"]]
+	: never
 
 export type RequestCallbackError = (error: Error) => void
 
@@ -51,18 +67,18 @@ export declare class EnrichedRequestor<
 	>;
 
 	info<_info extends repDef["info"]>(
-		info: _info,
-		cb: (data: Extract<repDef, {info: _info}>["body"]) => void
+		info: _info | _info[],
+		cb: (...args: DefToArgumentsWithInfo<Extract<repDef, {info: _info}>>) => void
 	): this;
-	id<_info extends repDef["info"]>(info: _info): Promise<
+	id<_info extends repDef["info"]>(info: _info | _info[]): Promise<
 		Extract<repDef, {info: _info}>["body"]
 	>;
 
 	code<_code extends repDef["code"]>(
-		code: _code,
-		cb: (data: Extract<repDef, {code: _code}>["body"]) => void
+		code: _code | _code[],
+		cb: (...args: DefToArgumentsWithCode<Extract<repDef, {code: _code}>>) => void
 	): this;
-	cd<_code extends repDef["code"]>(code: _code): Promise<
+	cd<_code extends repDef["code"]>(code: _code | _code[]): Promise<
 		Extract<repDef, {code: _code}>["body"]
 	>;
 
@@ -96,7 +112,7 @@ export const takesMethodTemplate = (
 ) => /* js */`
 	${method}(
 		path: ${path}, 
-		parameters ${optionalParameters ? "?" : ""}: ${parametersTypeName},
+		parameters ${optionalParameters ? "?" : ""}: ${parametersTypeName} & BaseRequestParameters,
 		interceptorParams?: interceptorParameter
 	): EnrichedRequestor<
 		${responseTypesNames}
@@ -114,7 +130,7 @@ export const givesMethodTemplate = (
 	${method}(
 		path: ${path}, 
 		body: ${bodyTypeName},
-		parameters ${optionalParameters ? "?" : ""}: ${parametersTypeName},
+		parameters ${optionalParameters ? "?" : ""}: ${parametersTypeName} & BaseRequestParameters,
 		interceptorParams?: interceptorParameter
 	): EnrichedRequestor<
 		${responseTypesNames}
