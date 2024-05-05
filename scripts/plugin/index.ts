@@ -182,15 +182,18 @@ export default function duploTypeGenerator(
 		const allTypeDefinitions: string[] = [];
 		const allDefDefinitions: string[] = [];
 
-		routesTypesCollection.forEach(({
-			responseSchemaCollection,
-			requestParameters,
-			paths,
-			method,
-		}) => {
+		routesTypesCollection.forEach((
+			{
+				responseSchemaCollection,
+				requestParameters,
+				paths,
+				method,
+			}, 
+			indexRoute
+		) => {
 			let receiveBodyTypeName: undefined | string;
 			if(requestParameters.body){
-				receiveBodyTypeName = `request_body_${process.hrtime.bigint()}`;
+				receiveBodyTypeName = `request_body_${indexRoute}`;
 				allTypeDefinitions.push(
 					zodToTypeInString(requestParameters.body as any, receiveBodyTypeName)
 				);
@@ -199,21 +202,21 @@ export default function duploTypeGenerator(
 
 			let parametersTypeName: undefined | string;
 			if(Object.keys(requestParameters).length !== 0){
-				parametersTypeName = `parameters_${process.hrtime.bigint()}`;
+				parametersTypeName = `parameters_${indexRoute}`;
 				allTypeDefinitions.push(
 					zodToTypeInString(zod.object(requestParameters as any), parametersTypeName)
 				);
 			}
 
 			const reponsesTypesNames: string[] = [];
-			responseSchemaCollection.forEach(responseSchema => {
-				const responseTypeName = `response_${process.hrtime.bigint()}`;
+			responseSchemaCollection.forEach((responseSchema, indexResponse) => {
+				const responseTypeName = `response_${indexRoute}_${indexResponse}`;
 				reponsesTypesNames.push(responseTypeName);
 
 				const shape = responseSchema._def.shape();
 				let sentBodyTypeName: undefined | string;
 				if(shape.body && !(shape.body instanceof zod.ZodUndefined)){
-					sentBodyTypeName = shape.body._identifier || `response_body_${process.hrtime.bigint()}`;
+					sentBodyTypeName = shape.body._identifier || `response_body_${indexRoute}_${indexResponse}`;
 					allTypeDefinitions.push(
 						zodToTypeInString(shape.body, sentBodyTypeName)
 					);
