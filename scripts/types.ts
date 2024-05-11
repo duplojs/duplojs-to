@@ -5,7 +5,7 @@ export type RequestParameters = {
 	params?: Record<string, string | number>;
 	query?: Record<string, string | string[] | number | undefined>;
 	disabledPrefix?: boolean;
-	headers?: Record<string, string | undefined>;
+	headers?: Record<string, string | string[] | undefined>;
 } & Omit<RequestInit, "headers" | "method">;
 
 export type RequestObject = {

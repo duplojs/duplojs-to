@@ -30,7 +30,7 @@ export default class DuploTo<
 	private host?: string;
 
 	private requestor: typeof Requestor;
-	private defaultHeaders: Record<string, string | number | string[] | undefined> = {};
+	private defaultHeaders: Record<string, string | string[] | undefined> = {};
 	public enriched: enrichedDuplojsTo;
 
 	private setBaseUrl(){
@@ -51,7 +51,7 @@ export default class DuploTo<
 		this.requestor.baseUrlWithoutPrefix = `${protocol}//${host}`;
 	}
 
-	setDefaultHeaders(headers: Record<string, string | number | string[] | undefined>){
+	setDefaultHeaders(headers: Record<string, string | string[] | undefined>){
 		this.defaultHeaders = headers;
 		return this;
 	}
@@ -143,9 +143,11 @@ export default class DuploTo<
 				parameters.body = JSON.stringify(parameters.body);
 			}
 		}
-		Object.entries(this.defaultHeaders).forEach(
-			([key, value]) => (parameters.headers as any)[key] = value
-		);
+		
+		parameters.headers = {
+			...parameters.headers,
+			...this.defaultHeaders
+		};  
 
 		return new this.requestor<interceptorParameter, data>(
 			path, 
