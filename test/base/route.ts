@@ -6,6 +6,10 @@ import duploTypeGenerator from "../../scripts/plugin";
 const duplo = Duplo({port: 1506, host: "localhost", environment: "DEV"});
 duplo.use(duploTypeGenerator);
 const duploTo = new DuploTo<{}, DuploTo>({host: "localhost:1506", https: false, prefix: "/test/"});
+duploTo.setDefaultHeaders({
+	tt: undefined,
+	test: "toto"
+});
 
 duplo.declareRoute("POST", "/request/*")
 .hook("onError", (req, res, err) => console.log(err))
@@ -117,6 +121,17 @@ duplo.declareRoute("POST", "/test/7")
 })
 .handler(async({pickup}, res) => {
 	res.info("s").send(pickup("body"));
+});
+
+duplo.declareRoute("POST", "/test/8")
+.extract({
+	headers: {
+		tt: zod.undefined(),
+		test: zod.literal("toto"),
+	}
+})
+.handler(async({pickup}, res) => {
+	res.info("s").send(pickup("test"));
 });
 
 duplo.launch(() => parentPort?.postMessage("ready"));

@@ -191,6 +191,17 @@ export default class Requestor<
 			url = urls[0] + "?" + query.join("&") + (urls[1] ? "&" + urls[1] : "");
 		}
 
+		if(requestParameters.headers){
+			const headers = requestParameters.headers;
+			Object.entries(requestParameters.headers).forEach(
+				([key, value]) => {
+					if(value === undefined){
+						delete headers[key];
+					}
+				}
+			);
+		}
+
 		try {
 			const response = await fetch(url, requestParameters as any);
 			const responseContentType = response.headers.get("content-type") || "";
