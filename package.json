@@ -42,7 +42,7 @@
     "rollup": "^3.26.2",
     "rollup-plugin-esbuild": "^6.1.1",
     "sucrase": "^3.34.0",
-    "typescript": "^5.0.2"
+    "typescript": "^5.4.2"
   },
   "dependencies": {
     "@duplojs/duplojs": ">=1.2.14 <2.0.0",

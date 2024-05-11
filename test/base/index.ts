@@ -104,5 +104,19 @@ export default workerTesting(
 				body: zod.literal("toto")
 			}
 		},
+		{
+			title: "string body",
+			url: "http://localhost:1506/request/8",
+			method: "POST",
+			headers: {"content-type": "application/json"},
+			body: {
+				method: "POST",
+			},
+			response: {
+				code: 200,
+				info: "s",
+				body: zod.literal("toto")
+			}
+		},
 	]
 );
