@@ -1,4 +1,4 @@
-import duploTypeGenerator from "./types/scripts/plugin";
-export * from "./types/scripts/plugin";
+import duploTypeGenerator from "./types/plugin";
+export * from "./types/plugin";
 
 export default duploTypeGenerator;
